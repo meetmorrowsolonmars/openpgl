@@ -24,10 +24,10 @@ func (a *DiamondSquare) Generate(size int) [][]float64 {
 	}
 
 	// set the altitude of the corners
-	altitudes[0][0] = a.rand()
-	altitudes[0][size-1] = a.rand()
-	altitudes[size-1][0] = a.rand()
-	altitudes[size-1][size-1] = a.rand()
+	altitudes[0][0] = 0.5 * a.rand()
+	altitudes[0][size-1] = 0.5 * a.rand()
+	altitudes[size-1][0] = 0.5 * a.rand()
+	altitudes[size-1][size-1] = 0.5 * a.rand()
 
 	// calculate map area
 	sMap := float64(size * size)
@@ -95,5 +95,5 @@ func (a *DiamondSquare) square(y, x, half, size int, ratio float64, altitudes []
 }
 
 func (a *DiamondSquare) rand() float64 {
-	return 2*a.max*a.generator.Float64() - a.max
+	return a.max * a.generator.Float64()
 }

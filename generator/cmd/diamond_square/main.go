@@ -2,17 +2,52 @@ package main
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"image/jpeg"
+	"log"
+	"math"
+	"os"
+	"time"
+
 	"github.com/meetmorrowsolonmars/openpgl/generator/internal/domain/algorithms"
 )
 
 func main() {
-	seed := int64(20)
-	max := 2.0
+	seed := time.Now().UnixNano()
+	max := 1.0
 	diamondSquare := algorithms.NewDiamondSquare(seed, max)
 
-	size := 17
+	size := 513
 	altitudes := diamondSquare.Generate(size)
-	PrintMap(size, size, altitudes)
+
+	mapImage := image.NewRGBA(image.Rect(0, 0, size, size))
+	for y, row := range altitudes {
+		for x, v := range row {
+			altitude := uint8(math.Max(math.Min(255*v, 255), 0))
+
+			mapImage.SetRGBA(x, y, color.RGBA{
+				R: altitude,
+				G: altitude,
+				B: altitude,
+				A: 255,
+			})
+		}
+	}
+
+	file, err := os.Create("test.jpeg")
+	if err != nil {
+		log.Fatal("can't create file")
+	}
+
+	defer func() {
+		_ = file.Close()
+	}()
+
+	err = jpeg.Encode(file, mapImage, nil)
+	if err != nil {
+		log.Fatal("can't encode image")
+	}
 }
 
 func PrintMap(w, h int, altitudes [][]float64) {
