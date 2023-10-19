@@ -15,25 +15,52 @@ import (
 
 func main() {
 	seed := time.Now().UnixNano()
-	max := 1.0
-	diamondSquare := algorithms.NewDiamondSquare(seed, max)
+	diamondSquare := algorithms.NewDiamondSquare(seed)
 
 	size := 513
 	altitudes := diamondSquare.Generate(size)
 
+	min, max := math.MaxFloat64, math.SmallestNonzeroFloat64
+
 	mapImage := image.NewRGBA(image.Rect(0, 0, size, size))
 	for y, row := range altitudes {
 		for x, v := range row {
-			altitude := uint8(math.Max(math.Min(255*v, 255), 0))
+			var c color.RGBA
+			switch {
+			case v < 0.2:
+				// sea
+				c = color.RGBA{
+					R: 0x13,
+					G: 0x93,
+					B: 0xf5,
+					A: 0xff,
+				}
+			case v < 0.4:
+				// sand
+				c = color.RGBA{
+					R: 0xf5,
+					G: 0xbc,
+					B: 0x2b,
+					A: 0xff,
+				}
+			case v > 0.4:
+				// forest
+				c = color.RGBA{
+					R: 0x0d,
+					G: 0xa1,
+					B: 0x12,
+					A: 0xff,
+				}
+			}
 
-			mapImage.SetRGBA(x, y, color.RGBA{
-				R: altitude,
-				G: altitude,
-				B: altitude,
-				A: 255,
-			})
+			mapImage.SetRGBA(x, y, c)
+
+			min = math.Min(min, v)
+			max = math.Max(max, v)
 		}
 	}
+
+	fmt.Printf("min %f, max %f\n", min, max)
 
 	file, err := os.Create("test.jpeg")
 	if err != nil {
