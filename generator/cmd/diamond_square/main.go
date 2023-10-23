@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"image/jpeg"
 	"log"
 	"os"
@@ -12,18 +12,25 @@ import (
 )
 
 func main() {
-	seed := time.Now().UnixNano()
-	diamondSquare := algorithms.NewDiamondSquare(seed)
+	seed := flag.Int64("seed", time.Now().UnixNano(), "Seed of the generation algorithm.")
+	size := flag.Int("size", 513, "Height map size. Should equal (2**n + 1).")
+	path := flag.String("path", "map.jpeg", "Path to save height map.")
+	flag.Parse()
 
-	size := 1025
-	altitudes := diamondSquare.Generate(size)
+	// create the diamond-square algorithm
+	algorithm := algorithms.NewDiamondSquare(*seed)
+
+	// generate a height map
+	altitudes := algorithm.Generate(*size)
+
+	// save the height map to the file
 	converter := domain.NewMapToImageConverter()
-	mapImage, err := converter.Convert(size, size, altitudes)
+	image, err := converter.Convert(*size, *size, altitudes)
 	if err != nil {
 		log.Fatal("can't convert map to image")
 	}
 
-	file, err := os.Create("test.jpeg")
+	file, err := os.Create(*path)
 	if err != nil {
 		log.Fatal("can't create file")
 	}
@@ -32,30 +39,8 @@ func main() {
 		_ = file.Close()
 	}()
 
-	err = jpeg.Encode(file, mapImage, nil)
+	err = jpeg.Encode(file, image, nil)
 	if err != nil {
 		log.Fatal("can't encode image")
 	}
-}
-
-func PrintMap(w, h int, altitudes [][]float64) {
-	fmt.Print("     ")
-	for i := 0; i < w; i++ {
-		fmt.Printf("(%3d) ", i+1)
-	}
-	fmt.Print("\n")
-
-	for y := 0; y < h; y++ {
-		if y == 0 {
-			fmt.Printf("(%2d) ", 1)
-		}
-
-		for x := 0; x < w; x++ {
-			fmt.Printf("%5.2f ", altitudes[y][x])
-		}
-
-		fmt.Printf("\n(%2d) ", y+1)
-	}
-
-	fmt.Print("\n")
 }

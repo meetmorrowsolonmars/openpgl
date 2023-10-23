@@ -1,4 +1,7 @@
 .idea/
+
+*.jpeg
+!*/docs/*.jpeg
+
 diamond-square.py
 geo-smooth.txt
-*.jpeg
