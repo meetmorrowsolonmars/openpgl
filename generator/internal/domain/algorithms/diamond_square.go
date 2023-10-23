@@ -42,10 +42,13 @@ func (a *DiamondSquare) Generate(size int) [][]float64 {
 	altitudes[a.size-1][a.size-1] = math.Abs(2 * a.rand())
 
 	for a.side = a.size; a.side > 2; a.side = a.side/2 + 1 {
+		// TODO: use function for calculate ratio
 		// calculate area ratio
-		a.ratio = float64(a.side*a.side) / a.area
+		// a.ratio = float64(a.side*a.side) / a.area
+		a.ratio = float64(a.side) / float64(a.size)
 		a.half = a.side / 2
 
+		// TODO: use an offset array
 		// diamond step
 		for y := 0; y < a.size-1; y += a.side - 1 {
 			for x := 0; x < a.size-1; x += a.side - 1 {

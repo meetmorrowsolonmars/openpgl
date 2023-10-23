@@ -72,7 +72,7 @@ func (c *MapToImageConverter) Convert(width, height int, altitudes [][]float64) 
 }
 
 func (c *MapToImageConverter) convertHeightToColor(altitude float64) color.RGBA {
-	if c.colors[0][0] > altitude {
+	if altitude <= c.colors[0][0] {
 		return color.RGBA{
 			R: uint8(255 * c.colors[0][1]),
 			G: uint8(255 * c.colors[0][2]),
@@ -82,7 +82,7 @@ func (c *MapToImageConverter) convertHeightToColor(altitude float64) color.RGBA 
 	}
 
 	for i := 0; i < len(c.colors)-1; i++ {
-		if c.colors[i][0] > altitude && altitude < c.colors[i][0] {
+		if c.colors[i][0] < altitude && altitude < c.colors[i+1][0] {
 			return color.RGBA{
 				R: uint8(255 * c.colors[i][1]),
 				G: uint8(255 * c.colors[i][2]),
