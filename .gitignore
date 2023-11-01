@@ -1,5 +1,10 @@
 .idea/
 
+bin/
+vendor.proto/
+
+.env
+
 *.jpeg
 !*/docs/*.jpeg
 

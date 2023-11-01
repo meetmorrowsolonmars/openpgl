@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package openpgl.settings.v1.settings;
+
+option go_package = "github.com/meetmorrowsolonmars/openpgl/settings/internal/pb/api/v1/settings";
+
+service SettingsService {
+  rpc GetDefaultSettings(GetDefaultSettingsRequest) returns (GetDefaultSettingsResponse) {}
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {}
+}
+
+message GetDefaultSettingsRequest {
+
+}
+
+message GetDefaultSettingsResponse {
+  
+}
+
+message GetSettingsRequest {
+}
+
+message GetSettingsResponse {
+}
