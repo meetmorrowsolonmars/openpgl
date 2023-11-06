@@ -34,3 +34,10 @@ db.pallets_settings.createIndex({
 }, {
     unique: true,
 });
+
+db.createCollection("default_pallets_settings", {
+    clusteredIndex: {
+        key: {_id: 1},
+        unique: true,
+    },
+});

@@ -19,6 +19,11 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/meetmorrowsolonmars/openpgl/settings/internal/app/v1/debug"
+	"github.com/meetmorrowsolonmars/openpgl/settings/internal/app/v1/settings"
+	"github.com/meetmorrowsolonmars/openpgl/settings/internal/pkg/repositories"
+	"github.com/meetmorrowsolonmars/openpgl/settings/internal/pkg/services"
 )
 
 func main() {
@@ -43,15 +48,27 @@ func main() {
 
 	// setup db connection
 	uri := os.Getenv("MONGODB_URI")
-	db, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		logger.Fatalf("can't connect to mongodb: %s", err)
 	}
+	defer func() {
+		_ = client.Disconnect(ctx)
+	}()
 
-	_ = db
+	// domain services setup
+	settingsRepository := repositories.NewSettingsRepository(client)
+	settingsService := services.NewSettingsService(settingsRepository)
+
+	// grpc services setup
+	settingsGRPCService := settings.NewSettingsServiceImplementation()
+	debugGRPCService := debug.NewDebugServiceImplementation(settingsService)
 
 	// grpc server setup
 	server := grpc.NewServer(grpc.ChainUnaryInterceptor(metrics.UnaryServerInterceptor()))
+
+	settings.RegisterGRPCServer(server, settingsGRPCService)
+	debug.RegisterGRPCServer(server, debugGRPCService)
 
 	metrics.InitializeMetrics(server)
 	reflection.Register(server)
@@ -84,6 +101,8 @@ func main() {
 		defer wg.Done()
 
 		<-ctx.Done()
+
+		logger.Info("application termination signal received, graceful shutdown starts")
 
 		// grpc server graceful stop
 		server.GracefulStop()

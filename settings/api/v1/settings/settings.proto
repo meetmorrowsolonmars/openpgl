@@ -9,16 +9,35 @@ service SettingsService {
   rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {}
 }
 
-message GetDefaultSettingsRequest {
+message ColorSettings {
+  int64 user_id = 1;
+  repeated Pallet pallets = 2;
+}
 
+message Pallet {
+  int64 id = 1;
+  repeated AltitudeColor colors = 2;
+}
+
+message AltitudeColor {
+  double altitude = 1;
+  uint32 r = 2;
+  uint32 g = 3;
+  uint32 b = 4;
+  uint32 a = 5;
+}
+
+message GetDefaultSettingsRequest {
 }
 
 message GetDefaultSettingsResponse {
-  
+  Pallet pallet = 1;
 }
 
 message GetSettingsRequest {
+  int64 user_id = 1;
 }
 
 message GetSettingsResponse {
+  ColorSettings settings = 1;
 }
