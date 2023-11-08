@@ -4,34 +4,36 @@ package openpgl.settings.v1.debug;
 
 option go_package = "github.com/meetmorrowsolonmars/openpgl/settings/internal/pb/api/v1/debug";
 
+import "buf/validate/validate.proto";
+
 service DebugService {
   rpc UpsertDefaultSettings(UpsertDefaultSettingsRequest) returns (UpsertDefaultSettingsResponse) {}
   rpc ProduceUpsertSettingsEvent(ProduceUpsertSettingsEventRequest) returns (ProduceUpsertSettingsEventResponse) {}
 }
 
 message Pallet {
-  int64 id = 1;
+  int64 id = 1 [(buf.validate.field).int64.gt = 0];
   repeated AltitudeColor colors = 2;
 }
 
 message AltitudeColor {
   double altitude = 1;
-  uint32 r = 2;
-  uint32 g = 3;
-  uint32 b = 4;
-  uint32 a = 5;
+  uint32 r = 2 [(buf.validate.field).uint32 = {gte: 0, lt: 256}];
+  uint32 g = 3 [(buf.validate.field).uint32 = {gte: 0, lt: 256}];
+  uint32 b = 4 [(buf.validate.field).uint32 = {gte: 0, lt: 256}];
+  uint32 a = 5 [(buf.validate.field).uint32 = {gte: 0, lt: 256}];
 }
 
 message UpsertDefaultSettingsRequest {
-  Pallet pallet = 1;
+  Pallet pallet = 1 [(buf.validate.field).required = true];
 }
 
 message UpsertDefaultSettingsResponse {
 }
 
 message ProduceUpsertSettingsEventRequest {
-  int64 user_id = 1;
-  repeated Pallet pallets = 2;
+  int64 user_id = 1 [(buf.validate.field).int64.gt = 0];
+  repeated Pallet pallets = 2 [(buf.validate.field).required = true];
 }
 
 message ProduceUpsertSettingsEventResponse {

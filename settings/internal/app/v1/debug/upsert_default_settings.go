@@ -12,8 +12,6 @@ import (
 )
 
 func (i *Implementation) UpsertDefaultSettings(ctx context.Context, request *desc.UpsertDefaultSettingsRequest) (*desc.UpsertDefaultSettingsResponse, error) {
-	// TODO: validate pallet != nil
-	// TODO: validate pallet id
 	settings := &domain.Pallet{
 		ID:     request.Pallet.Id,
 		Colors: make([]domain.AltitudeColor, 0, len(request.Pallet.Colors)),

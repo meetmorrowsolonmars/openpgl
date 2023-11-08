@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bufbuild/protovalidate-go"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -22,6 +23,7 @@ import (
 
 	"github.com/meetmorrowsolonmars/openpgl/settings/internal/app/v1/debug"
 	"github.com/meetmorrowsolonmars/openpgl/settings/internal/app/v1/settings"
+	"github.com/meetmorrowsolonmars/openpgl/settings/internal/pkg/middleware"
 	"github.com/meetmorrowsolonmars/openpgl/settings/internal/pkg/repositories"
 	"github.com/meetmorrowsolonmars/openpgl/settings/internal/pkg/services"
 )
@@ -64,8 +66,19 @@ func main() {
 	settingsGRPCService := settings.NewSettingsServiceImplementation()
 	debugGRPCService := debug.NewDebugServiceImplementation(settingsService)
 
+	// validator setup
+	validator, err := protovalidate.New()
+	if err != nil {
+		logger.Fatalf("can't create validator: %s", err)
+	}
+
 	// grpc server setup
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor(metrics.UnaryServerInterceptor()))
+	server := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			metrics.UnaryServerInterceptor(),
+			middleware.ValidateUnaryServerInterceptor(validator),
+		),
+	)
 
 	settings.RegisterGRPCServer(server, settingsGRPCService)
 	debug.RegisterGRPCServer(server, debugGRPCService)
